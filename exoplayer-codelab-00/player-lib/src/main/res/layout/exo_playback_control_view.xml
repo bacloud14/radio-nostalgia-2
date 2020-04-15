@@ -46,17 +46,18 @@
 
     <TextView
         android:id="@+id/textView_URL"
-        android:text="ExoPlayer 2 Example App:"
+        android:text="You can share new audio materials with me!"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="30sp"
-        android:textColor="#FFFFFF"
-        android:gravity="center_horizontal"/>
+        android:textSize="10sp"
+        android:textColor="#FFFFFF"/>
+
     <Button
         android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="open dialog"/>
+        android:layout_width="52dp"
+        android:layout_height="30dp"
+        android:text="share"
+        android:textSize="8sp" />
 
     <ImageView
         android:contentDescription="@string/logo"

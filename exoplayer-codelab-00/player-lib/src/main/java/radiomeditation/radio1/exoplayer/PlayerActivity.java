@@ -16,6 +16,7 @@
 package radiomeditation.radio1.exoplayer;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -100,9 +101,6 @@ public class PlayerActivity extends AppCompatActivity implements ShareDialog.Sha
                 openSubmitDialog();
             }
         });
-        TextView textViewURL = findViewById(R.id.textView_URL);
-        textViewURL.setText("Hello");
-
     }
 
     public void openSubmitDialog(){
@@ -263,6 +261,16 @@ public class PlayerActivity extends AppCompatActivity implements ShareDialog.Sha
 
     @Override
     public void applyTexts(String shareURL) {
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@"+shareURL);
+        Intent i = new Intent(Intent.ACTION_SEND);
+        i.setType("message/rfc822");
+        i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"bacloud14@gmail.com"});
+        i.putExtra(Intent.EXTRA_SUBJECT, "subject of email");
+        i.putExtra(Intent.EXTRA_TEXT   , shareURL);
+        try {
+            startActivity(Intent.createChooser(i, "Send mail..."));
+        } catch (android.content.ActivityNotFoundException ex) {
+            // Toast.makeText(MyActivity.this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+            ex.printStackTrace();
+        }
     }
 }
