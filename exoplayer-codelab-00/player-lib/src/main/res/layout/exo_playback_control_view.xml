@@ -45,13 +45,18 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textView_URL"
         android:text="ExoPlayer 2 Example App:"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
+        android:textSize="30sp"
         android:textColor="#FFFFFF"
         android:gravity="center_horizontal"/>
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="open dialog"/>
 
     <ImageView
         android:contentDescription="@string/logo"

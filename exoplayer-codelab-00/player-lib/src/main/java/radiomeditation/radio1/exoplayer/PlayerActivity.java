@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -54,10 +55,13 @@ import java.util.Locale;
 /**
  * A fullscreen activity to play audio or video streams.
  */
-public class PlayerActivity extends AppCompatActivity {
+public class PlayerActivity extends AppCompatActivity implements ShareDialog.ShareDialogListener {
 
     final String language = Locale.getDefault().getLanguage();
     private PlayerView playerView;
+    private TextView textViewURL;
+    private Button submit;
+
     private boolean playWhenReady = true;
     private int currentWindow = 0;
     private long playbackPosition = 0;
@@ -86,12 +90,27 @@ public class PlayerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
-        playerView = findViewById(R.id.video_view);
 
-        TextView helloTextView = (TextView) findViewById(R.id.textView);
-        helloTextView.setText("Hello");
+        playerView = findViewById(R.id.video_view);
+        textViewURL = findViewById(R.id.textView_URL);
+        submit = findViewById(R.id.button);
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openSubmitDialog();
+            }
+        });
+        TextView textViewURL = findViewById(R.id.textView_URL);
+        textViewURL.setText("Hello");
 
     }
+
+    public void openSubmitDialog(){
+        ShareDialog shareDialog = new ShareDialog();
+        shareDialog.show(getSupportFragmentManager(), "share dialog");
+    }
+
+
 
     private void initializePlayer() throws IOException {
         if (android.os.Build.VERSION.SDK_INT > 9) {
@@ -242,4 +261,8 @@ public class PlayerActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void applyTexts(String shareURL) {
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@"+shareURL);
+    }
 }
