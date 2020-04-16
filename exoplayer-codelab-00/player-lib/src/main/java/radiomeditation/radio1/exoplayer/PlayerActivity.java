@@ -16,31 +16,41 @@
 package radiomeditation.radio1.exoplayer;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.View;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.radiomeditation.exoplayer.R;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.ui.PlayerView;
+
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.radiomeditation.exoplayer.R;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -52,12 +62,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
-
+import android.app.Service.*;
 /**
  * A fullscreen activity to play audio or video streams.
  */
 public class PlayerActivity extends AppCompatActivity implements ShareDialog.ShareDialogListener {
 
+    private static final int PLAYBACK_CHANNEL_ID = 54321;
+    private static final int NOTIFICATION_ID = 654321;
     final String language = Locale.getDefault().getLanguage();
     private PlayerView playerView;
     private TextView textViewURL;
@@ -69,6 +81,7 @@ public class PlayerActivity extends AppCompatActivity implements ShareDialog.Sha
     private Uri subtitleUri, videoUriEN, videoUriFR, videoUriAR;
     private ArrayList<Sample> samples = new ArrayList<Sample>();
     private SimpleExoPlayer player;
+    private PlayerNotificationManager playerNotificationManager;
 
     private static HashMap<String, String> getQueryMap(String queryString, String charsetName) throws UnsupportedEncodingException {
         HashMap<String, String> map = new HashMap<String, String>();
@@ -91,7 +104,15 @@ public class PlayerActivity extends AppCompatActivity implements ShareDialog.Sha
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
+        WebView webView = findViewById(R.id.webView);
+        // Configure the webview so that the game will load
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setAllowFileAccessFromFileURLs(true);
+        settings.setAllowUniversalAccessFromFileURLs(true);
 
+        // Load in the game's HTML file
+        webView.loadUrl("file:///android_asset/index.html");
         playerView = findViewById(R.id.video_view);
         textViewURL = findViewById(R.id.textView_URL);
         submit = findViewById(R.id.button);
@@ -101,6 +122,42 @@ public class PlayerActivity extends AppCompatActivity implements ShareDialog.Sha
                 openSubmitDialog();
             }
         });
+        final Context context = this;
+//        Context context,
+//        String channelId,
+//        @StringRes int channelName,
+//        @StringRes int channelDescription,
+//        int notificationId,
+//        MediaDescriptionAdapter mediaDescriptionAdapter
+
+        playerNotificationManager = PlayerNotificationManager.createWithNotificationChannel(
+                context, "channelId", android.R.string.cut, android.R.string.cut, new PlayerNotificationManager.MediaDescriptionAdapter() {
+                    @Override
+                    public String getCurrentContentTitle(Player player) {
+                        return samples.get(player.getCurrentWindowIndex()).title;
+                    }
+
+                    @Nullable
+                    @Override
+                    public PendingIntent createCurrentContentIntent(Player player) {
+                        Intent intent = new Intent(context, PlayerActivity.class);
+                        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    }
+
+                    @Nullable
+                    @Override
+                    public String getCurrentContentText(Player player) {
+                        return samples.get(player.getCurrentWindowIndex()).description;
+                    }
+
+                    @Nullable
+                    @Override
+                    public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
+                        return null;
+                    }
+                }
+                );
+
     }
 
     public void openSubmitDialog(){
