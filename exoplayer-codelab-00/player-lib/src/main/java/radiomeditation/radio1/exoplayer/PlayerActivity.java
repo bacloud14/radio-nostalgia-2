@@ -110,7 +110,7 @@ public class PlayerActivity extends AppCompatActivity implements ShareDialog.Sha
         settings.setJavaScriptEnabled(true);
         settings.setAllowFileAccessFromFileURLs(true);
         settings.setAllowUniversalAccessFromFileURLs(true);
-
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         // Load in the game's HTML file
         webView.loadUrl("file:///android_asset/index.html");
         playerView = findViewById(R.id.video_view);
@@ -238,9 +238,15 @@ public class PlayerActivity extends AppCompatActivity implements ShareDialog.Sha
         String date = df.format(new Date());
         int i = 0;
         for (String cat: Sample.categories){
-            Uri videoUri = Uri.parse(String.format("https://source-audio-mixer.s3.us-east-2.amazonaws.com/mixed/%s/%s/mixed.mp3", cat, date));
+            Uri videoUri;
+            if(Sample.mixing[i]){
+                videoUri = Uri.parse(String.format("https://source-audio-mixer.s3.us-east-2.amazonaws.com/mixed/%s/%s/mixed.mp3", cat, date));
+            }else{
+                videoUri = Uri.parse(String.format("https://source-audio-mixer.s3.us-east-2.amazonaws.com/playlist/%s/mixed.mp3", cat));
+            }
+
             System.out.println(videoUri);
-            samples.add(new Sample(Sample.titles[i], videoUri, Sample.descriptions[i]));
+            samples.add(new Sample(Sample.titles[i], videoUri, Sample.descriptions[i], Sample.mixing[i]));
             i++;
         }
     }
