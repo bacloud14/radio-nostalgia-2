@@ -32,6 +32,7 @@ limitations under the License. -->
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name="radiomeditation.radio1.exoplayer.AudioPlayerActivity"/>
     </application>
 
 </manifest>
