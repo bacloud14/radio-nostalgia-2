@@ -18,6 +18,7 @@ import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
@@ -27,6 +28,7 @@ import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.radiomeditation.exoplayer.R;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -52,19 +54,20 @@ public class AudioPlayerActivity extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
         final Context context = this;
 
         player = ExoPlayerFactory.newSimpleInstance(context, new DefaultTrackSelector());
 
-         initURLs();
+        initURLs();
         // Uri uri = Uri.parse(getString(R.string.media_url_dash));
         DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(context,
-                Util.getUserAgent(context, "radio-meditation"));
+                Util.getUserAgent(context, "radio-nostalgia"));
         ArrayList<MediaSource> mediaSources = new ArrayList<MediaSource>();
         ConcatenatingMediaSource playlist =
                 new ConcatenatingMediaSource();
 
-        for (Sample sample: samples){
+        for (Sample sample : samples) {
             MediaSource OneMediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(sample.url);
             MediaSource[] oneMediaSourceWithSub = new MediaSource[2];
             oneMediaSourceWithSub[0] = OneMediaSource;
@@ -80,52 +83,67 @@ public class AudioPlayerActivity extends Service {
         // player.prepare(concatenatedSource, false, false);
         player.prepare(playlist);
         player.setPlayWhenReady(true);
-        playerNotificationManager = PlayerNotificationManager.createWithNotificationChannel(
-                context, "channelId", android.R.string.cut, android.R.string.cut, new PlayerNotificationManager.MediaDescriptionAdapter() {
-                    @Override
-                    public String getCurrentContentTitle(Player player) {
-                        return samples.get(player.getCurrentWindowIndex()).title;
-                    }
 
-                    @Nullable
-                    @Override
-                    public PendingIntent createCurrentContentIntent(Player player) {
-                        Intent intent = new Intent(context, PlayerActivity.class);
-                        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    }
-
-                    @Nullable
-                    @Override
-                    public String getCurrentContentText(Player player) {
-                        return samples.get(player.getCurrentWindowIndex()).description;
-                    }
-
-                    @Nullable
-                    @Override
-                    public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
-                        return null;
-                    }
-                }
-        );
-
-        playerNotificationManager.setNotificationListener(new PlayerNotificationManager.NotificationListener() {
+        PlayerNotificationManager.MediaDescriptionAdapter notificationAdapter = new PlayerNotificationManager.MediaDescriptionAdapter() {
             @Override
-            public void onNotificationStarted(int notificationId, Notification notification) {
-                startForeground(notificationId, notification);
+            public String getCurrentContentTitle(Player player) {
+                return samples.get(player.getCurrentWindowIndex()).title;
+            }
+
+            @Nullable
+            @Override
+            public PendingIntent createCurrentContentIntent(Player player) {
+                Intent intent = new Intent(context, PlayerActivity.class);
+                return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            }
+
+            @Nullable
+            @Override
+            public String getCurrentContentText(Player player) {
+                return samples.get(player.getCurrentWindowIndex()).description;
+            }
+
+            @Nullable
+            @Override
+            public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
+                return null;
+            }
+        };
+
+        PlayerNotificationManager.NotificationListener notificationListener = new PlayerNotificationManager.NotificationListener() {
+
+            @Override
+            public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
+                stopForeground(true);
             }
 
             @Override
-            public void onNotificationCancelled(int notificationId) {
-                stopSelf();
+            public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
+                if (ongoing)
+                    startForeground(notificationId, notification);
+                else
+                    stopForeground(false);
             }
-        });
+        };
 
-        playerNotificationManager.setPlayer(player);
+
         Intent dialogIntent = new Intent(this, PlayerActivity.class);
         dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
         startActivity(dialogIntent);
+        playerNotificationManager = PlayerNotificationManager.createWithNotificationChannel(
+                context, "channelId", R.string.player_activity_name, R.string.player_activity_description, 1, notificationAdapter, notificationListener);
+
+
+        playerNotificationManager.setPlayer(player);
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setUsage(C.USAGE_MEDIA)
+                .setContentType(C.CONTENT_TYPE_MOVIE)
+                .build();
+        player.setAudioAttributes(audioAttributes, /* handleAudioFocus= */ true);
 
     }
+
     private void initURLs() {
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         String date = df.format(new Date());
@@ -142,7 +160,10 @@ public class AudioPlayerActivity extends Service {
             samples.add(new Sample(Sample.titles[i], videoUri, Sample.descriptions[i], Sample.mixing[i]));
             i++;
         }
+
     }
+
+
     @Override
     public void onDestroy() {
         playerNotificationManager.setPlayer(null);
@@ -151,3 +172,4 @@ public class AudioPlayerActivity extends Service {
         super.onDestroy();
     }
 }
+

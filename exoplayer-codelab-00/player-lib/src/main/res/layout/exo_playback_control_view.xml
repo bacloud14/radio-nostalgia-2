@@ -8,6 +8,12 @@
     android:layoutDirection="ltr"
     android:background="#CC000000"
     android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -82,7 +88,7 @@
 
     <TextView
         android:id="@+id/textView_URL"
-        android:text="You can share new audio materials with me!"
+        android:text="You can suggest new materials. Remember, all must be in public domain!"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="10sp"
@@ -94,11 +100,6 @@
         android:layout_height="30dp"
         android:text="share"
         android:textSize="8sp" />
-
-    <WebView
-        android:id="@+id/webView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
 
 
 </LinearLayout>
