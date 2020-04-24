@@ -12,7 +12,7 @@ public class Sample {
     public static String[] titles = {"EN channel", "FR channel", "AR channel", "Comic books channel"};
     public boolean toBeMixed = true;
 
-    public Sample(String title, Uri url, String description, boolean toBeMixed) {
+    public Sample(String title, Uri url,  String description, boolean toBeMixed) {
         this.title = title;
         this.url = url;
         this.description = description;
