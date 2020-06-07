@@ -1,3 +1,5 @@
-Media streaming with ExoPlayer
+Media streaming with ExoPlayer. Radio player example
 ===
-The code in this repository accompanies the [Media streaming with ExoPlayer codelab](https://codelabs.developers.google.com/codelabs/exoplayer-intro). If you are looking to get started with [ExoPlayer](https://exoplayer.dev) the codelab is a great place to start.  
+This repository is a fork of https://github.com/google/ExoPlayer a property of Google.
+
+read more about the radio player case here https://endpoint.space/topic/9/radio-mixing-phone-application
